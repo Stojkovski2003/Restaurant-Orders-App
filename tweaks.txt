@@ -1,0 +1,4 @@
+project tweaks:
+- option to change password even if not forgotten
+- option to change username
+- employee and order info saved to sqlite database rather than .txt file or excel sheet
