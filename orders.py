@@ -15,8 +15,8 @@ def create_order():
     c = conn.cursor()
     c.execute("SELECT id FROM orders ORDER BY id DESC;")
     id = c.fetchone()[0] + 1
-    c.execute("INSERT INTO orders VALUES (:id, :customer_name, :customer_email, :customer_phone_number, :order_sent, :order_datetime)",
-    {'id' : id, 'customer_name' : name, 'customer_email' : email, 'customer_phone_number' : number, 'order_sent' : 0, 'order_datetime' : date})
+    c.execute("INSERT INTO orders VALUES (:id, :customer_name, :customer_email, :customer_phone_number, :order_sent, :order_datetime, :order_cancelled)",
+    {'id' : id, 'customer_name' : name, 'customer_email' : email, 'customer_phone_number' : number, 'order_sent' : 0, 'order_datetime' : date, 'order_cancelled' : 0})
     conn.commit()
     c.close()
     conn.close()
@@ -50,6 +50,24 @@ def send_order():
     print("Order sent and customer notified.")
         
 def cancel_order():
-    pass
+    order_id = int(input("Enter order id: "))
+    conn = sqlite3.connect('C:/Users/stefan/Desktop/Programiranje/restaurant_orders_app/orders.db',
+                             detect_types=sqlite3.PARSE_DECLTYPES |
+                             sqlite3.PARSE_COLNAMES)
+    c = conn.cursor()
+    c.execute(f"SELECT order_sent FROM orders WHERE id = {order_id}")
+    order_sent = c.fetchone()[0]
+    c.execute(f"SELECT order_datetime FROM orders WHERE id = {order_id}")
+    order_time = c.fetchone()[0]
+    if order_sent == True:
+        print("Order already sent.")
+    elif datetime.datetime.now() - order_time > datetime.timedelta(minutes = 5):
+        print("Too late to cancel order.")
+    else:
+        c.execute(f"UPDATE orders SET order_cancelled = 1 WHERE id = {order_id}")
+    conn.commit()
+    c.close()
+    conn.close()
 
-send_order()
+create_order()
+cancel_order()
